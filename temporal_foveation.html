@@ -58,12 +58,17 @@ button.primary{background:linear-gradient(135deg,#174784,#392b76);border-color:#
 .step .n{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan)}
 .step b{display:block;font-size:13px;margin:6px 0 3px}
 .step p{margin:0;color:var(--muted);font-size:11px;line-height:1.35}
+.transition{margin-top:16px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:16px}
+.transition .plotbox{padding:10px 14px 14px}
+#adaptation{width:100%;height:240px}
+.transitionText{padding:16px;color:var(--muted);font-size:13px;line-height:1.6}
+.transitionText strong{color:var(--ink)}
 .note{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(10,14,22,.72);color:var(--muted);font-size:13px;line-height:1.6}
 .note code{color:var(--cyan)}
 .eq{font:500 13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbeafe}
 .badge{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;padding:5px 7px;border-radius:8px;background:#172235;border:1px solid var(--line)}
 @media(max-width:980px){
-  body{padding:12px}.grid{grid-template-columns:1fr}.canvasWrap{min-height:510px}canvas{height:510px}.flow{grid-template-columns:1fr 1fr}.nav{justify-content:flex-start}
+  body{padding:12px}.grid{grid-template-columns:1fr}.canvasWrap{min-height:510px}canvas{height:510px}.flow{grid-template-columns:1fr 1fr}.nav{justify-content:flex-start}.transition{grid-template-columns:1fr}
 }
 @media(max-width:560px){.flow{grid-template-columns:1fr}.ctrl{grid-template-columns:105px 1fr 42px}.buttons{grid-template-columns:1fr}}
 </style>
@@ -148,6 +153,30 @@ button.primary{background:linear-gradient(135deg,#174784,#392b76);border-color:#
   <div class="step"><span class="n">05</span><b>Reflection is new</b><p>Past-self is not substituted for present-self; their coexistence makes comparison possible.</p></div>
 </div>
 
+
+<div class="transition">
+  <section class="card">
+    <div class="cardHead">
+      <div><h2>When the world-model loses one of its inputs</h2><div class="sub">old coupled modes keep predicting for a while; reality repeatedly returns residual</div></div>
+      <span class="badge">MODE TRANSITION</span>
+    </div>
+    <div class="plotbox"><canvas id="adaptation"></canvas></div>
+  </section>
+  <section class="card">
+    <div class="cardHead"><div><h2>Two different meanings of “loss”</h2><div class="sub">keep the metaphor honest</div></div></div>
+    <div class="transitionText">
+      <strong>Predictive loss</strong> can jump when a long-stable source of input disappears while the internal transition model still expects it.
+      Repeated mismatch can slowly reshape the dominant modes until ordinary continuation becomes predictable again.
+      <br><br>
+      <strong>Emotional loss is not reduced to an optimization scalar.</strong> The site only borrows the machine-learning word because the
+      computational analogy is useful: the expected +1 continuation became badly wrong, then gradually less wrong.
+      <br><br>
+      A later cue can transiently <strong>reinstantiate part of the old mode</strong> without undoing the newer stable model.
+      That is why temporal foveation can feel like another era becoming sharp while the current self remains present.
+    </div>
+  </section>
+</div>
+
 <div class="note">
   <strong>Working abstraction.</strong>
   <span class="eq">R = ΔS − ΔŜ</span> is the unexpected change.
@@ -166,6 +195,7 @@ const $ = id => document.getElementById(id);
 const controls = ["context","relation","affect","residue","decay","sharp"].map($);
 const field = $("field"), fctx = field.getContext("2d");
 const knee = $("knee"), kctx = knee.getContext("2d");
+const adaptation = $("adaptation"), actx = adaptation.getContext("2d");
 let phase=0, sequenceTimer=null;
 
 function resizeCanvas(canvas){
@@ -251,6 +281,43 @@ function rgba(hex,a){
   const n=parseInt(hex.slice(1),16);
   return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;
 }
+
+function drawAdaptation(){
+  const {w,h}=resizeCanvas(adaptation), padL=40,padR=18,padT=18,padB=30;
+  actx.clearRect(0,0,w,h);
+  actx.strokeStyle="#233046";actx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+(h-padT-padB)*i/4;
+    actx.beginPath();actx.moveTo(padL,y);actx.lineTo(w-padR,y);actx.stroke();
+  }
+  const x0=padL+(w-padL-padR)*.23;
+  actx.strokeStyle="rgba(255,123,134,.5)";actx.setLineDash([4,4]);
+  actx.beginPath();actx.moveTo(x0,padT);actx.lineTo(x0,h-padB);actx.stroke();actx.setLineDash([]);
+
+  const drawCurve=(color,fn)=>{
+    actx.strokeStyle=color;actx.lineWidth=2.2;actx.beginPath();
+    for(let i=0;i<=240;i++){
+      const t=i/240, x=padL+t*(w-padL-padR), yv=Math.max(0,Math.min(1,fn(t)));
+      const y=h-padB-yv*(h-padT-padB);
+      i?actx.lineTo(x,y):actx.moveTo(x,y);
+    }
+    actx.stroke();
+  };
+  // Before the break prediction error is low. Removing a persistent input causes
+  // a large mismatch, then adaptation discovers a new low-error continuation.
+  drawCurve("#ff7b86",t=>t<.23?.055:.055+.90*Math.exp(-(t-.23)*6.2));
+  drawCurve("#ff8ac6",t=>t<.23?.96:.96*Math.exp(-(t-.23)*3.2));
+  drawCurve("#63e6ff",t=>t<.23?.04:1-.96*Math.exp(-(t-.23)*3.2));
+
+  actx.fillStyle="#9ca9bd";actx.font="11px system-ui";
+  actx.fillText("time / repeated +1 continuations →",Math.max(padL,w-195),h-7);
+  actx.save();actx.translate(12,h/2+30);actx.rotate(-Math.PI/2);actx.fillText("relative magnitude",0,0);actx.restore();
+  actx.fillStyle="#ff7b86";actx.fillText("prediction error",padL+8,padT+14);
+  actx.fillStyle="#ff8ac6";actx.fillText("old coupled mode",padL+8,padT+29);
+  actx.fillStyle="#63e6ff";actx.fillText("new stable mode",padL+8,padT+44);
+  actx.fillStyle="#ff7b86";actx.fillText("structural break",x0+6,h-padB-8);
+}
+
 function drawField(){
   const {w,h}=resizeCanvas(field), m=metrics();
   fctx.clearRect(0,0,w,h);
@@ -359,8 +426,8 @@ function drawField(){
   phase+=1;
   requestAnimationFrame(drawField);
 }
-window.addEventListener("resize",()=>{syncOutputs()});
-syncOutputs(); drawField();
+window.addEventListener("resize",()=>{syncOutputs();drawAdaptation()});
+syncOutputs(); drawAdaptation(); drawField();
 </script>
 </body>
 </html>
