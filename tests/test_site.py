@@ -26,6 +26,14 @@ class TemporalFoveationSiteTests(unittest.TestCase):
         self.assertIn("not a claim that autobiographical memory is a cortical spiral", page)
         self.assertIn("visualization/metaphor until an experiment earns more", page)
 
+    def test_mode_transition_panel(self):
+        page = (ROOT / "temporal_foveation.html").read_text(encoding="utf-8")
+        self.assertIn("When the world-model loses one of its inputs", page)
+        self.assertIn("Predictive loss", page)
+        self.assertIn("old coupled mode", page)
+        self.assertIn("new stable mode", page)
+
+
     def test_original_demo_links_to_new_page(self):
         index = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn('href="temporal_foveation.html"', index)
