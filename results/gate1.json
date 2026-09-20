@@ -1,0 +1,29 @@
+{
+  "gate": "Gate 1 — discovered constructive residue synthesis",
+  "seeds": 32,
+  "selected_family_counts": {
+    "sum": 0,
+    "linear_concat": 0,
+    "hadamard": 0,
+    "symmetric_outer": 0,
+    "ordered_outer": 32
+  },
+  "mean_metrics": {
+    "joint_heldout_operator_r2": 0.9780641881921028,
+    "joint_heldout_operator_nrmse": 0.1445264668630059,
+    "branch_a_r2": -0.03878076830703375,
+    "branch_b_r2": -0.03627745237409154,
+    "convex_branch_mix_r2": 0.011572418008212848,
+    "pair_lookup_r2": -0.057394143497491217,
+    "provenance_erased_r2": 0.2651260829549462,
+    "provenance_shuffled_r2": -0.5837784438230775,
+    "joint_span_residual": 0.7457033495882373,
+    "heldout_application_r2": 0.9788740040101696,
+    "convex_application_r2": 0.04222480886948589,
+    "postmix_mlp_control_r2": 0.9466536374194748,
+    "postmix_mlp_application_r2": 0.947361632468743
+  },
+  "provenance_erased_drop": 0.7129381052371566,
+  "gate_pass": true,
+  "note": "Compact committed receipt. Re-run experiment.py --assert-gate --seeds 32 to regenerate the full per-world receipt."
+}
