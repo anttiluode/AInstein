@@ -60,20 +60,66 @@ This is **not autonomous invention**. The candidate grammar already contains an 
 
 It also does not establish a biological mechanism, human creativity, semantic novelty, or superiority over transformers.
 
+
+## Gate 2 — which residues deserve the collision budget?
+
+Gate 1 assumed that the relevant A/B pair had already been presented. Gate 2 makes pair choice itself part of the computation.
+
+Each world now contains **8 A residues × 8 B residues = 64 legal collisions**. The Gate-1 ordered interaction is frozen. Every candidate pair has a predicted operator signature, but the current bottleneck/need is hidden. A real collision probe returns only one noisy bit about how that pair responds to the current need.
+
+Every policy gets the same current need, the same noise tape and exactly **three** probes — only **4.6875%** of the pair space.
+
+The active policy imports the central idea from AnotherOddThing: maintain a posterior over possible current needs and choose the residue pair whose collision has maximum expected information gain. The random control gets three distinct random pair probes. A greedy control spends its probes on the pair that currently looks most useful instead of asking what would reduce uncertainty.
+
+There is also a provenance attacker. It gives the active algorithm the correct response library but attaches those predictions to the **wrong pair addresses**.
+
+### 32-world / 128-trial receipt
+
+| policy | selected utility | oracle-pair hit | posterior entropy |
+|---|---:|---:|---:|
+| **active information gain** | **0.9531** | **0.8999** | **0.255 bits** |
+| random distinct | 0.8460 | 0.1990 | 1.330 bits |
+| greedy exploit-only | 0.8041 | 0.0942 | 1.769 bits |
+| provenance/address misbound | 0.4762 | 0.0225 | **0.247 bits** |
+
+Active beats random utility by **+0.1070** and greedy by **+0.1489** while examining fewer than 5% of possible collisions. Its oracle-pair hit advantage over random is **+0.7009**.
+
+The strangest result is the misbinding attacker. It becomes almost as *certain* as the correct active system — **0.247 bits** of posterior entropy — while choosing nearly useless pairs.
+
+That gives Gate 2 a useful correction:
+
+> **confidence is not provenance.**
+
+A system can have a sharp posterior over a model whose source/address binding is wrong.
+
+So the emerging chain is now:
+
+    preserve residues
+        -> preserve source relation
+        -> predict candidate collisions
+        -> spend a tiny budget on informative collisions
+        -> infer the current bottleneck
+        -> choose the useful synthesis
+
+This is the first place where the AnotherOddThing and WhatToLookAt branches become operational parts of AInstein rather than genealogy arrows.
+
+See `GATE2_CONTRACT.md` and `results/gate2.json`.
+
 ## Next gates
 
-**Gate 2 — which residues?** Give the system many preserved stamped residues and a limited compute budget. It must select the pair and interaction worth testing. This is where AnotherOddThing and WhatToLookAt enter.
+**Gate 3 — escape the supplied grammar.** Gate 1 selected from a hand-provided interaction grammar. The next synthesis gate must search a small executable operator/program language or grow a compositional circuit, then survive held-out residue families.
 
-**Gate 3 — escape the supplied grammar.** Search a small executable operator/program language or grow a compositional circuit, then test on held-out residue families.
-
-**Gate 4 — operator time.** Replace simple A/B role stamps with event, time, perspective, branch, and actual/simulated provenance.
+**Gate 4 — operator time.** Replace simple A/B role stamps with event, time, perspective, branch, and actual/simulated provenance, and ask whether collision value depends on the trajectory that produced the residue.
 
 **Gate 5 — useful writeback.** Let the synthesized operator alter future resident state, then require the acquired capability to remain useful after the original residues are gone.
+
+**Gate 6 — open-ended collision allocation.** Remove the finite eight-hypothesis need family used by Gate 2 and ask whether uncertainty can be represented and reduced without a closed candidate list.
 
 ## Run
 
     python -m pip install -r requirements.txt
     python experiment.py --assert-gate --seeds 32
+    python gate2_experiment.py --assert-gate --seeds 32 --trials 128
     python -m unittest discover -s tests -v
 
 The interactive index.html that bootstrapped the repo is intentionally retained as the visual branching-residue sketch. The executable scientific gate now lives beside it.
