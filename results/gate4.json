@@ -1,0 +1,29 @@
+{
+  "gate": "Gate 4 — contextual operator reinstatement and reflection",
+  "worlds": 32,
+  "config": {
+    "eras": 8,
+    "operator_dimension": 6,
+    "context_dimension": 5,
+    "queries_per_era": 8,
+    "training_examples_per_operator": 128,
+    "few_shot_transfer_pairs": 3
+  },
+  "mean_metrics": {
+    "retrieval_hit": 0.9892578125,
+    "reinstated_old_task_r2": 0.97838154,
+    "current_operator_old_task_r2": -1.00384831,
+    "average_cache_old_task_r2": 0.11906424,
+    "context_erased_old_task_r2": -0.75505687,
+    "reflection_transfer_r2": 0.97836532,
+    "wrong_era_reflection_r2": -0.99171179,
+    "current_direct_transfer_r2": -1.00722098,
+    "past_direct_transfer_r2": -0.99991745,
+    "best_convex_transfer_r2": -0.47261691,
+    "few_shot_transfer_r2": 0.49583551
+  },
+  "strongest_reinstatement_attacker_r2": 0.11906424,
+  "strongest_transfer_attacker_r2": 0.49583551,
+  "gate_pass": true,
+  "note": "Compact deterministic receipt. Re-run gate4_experiment.py --assert-gate --seeds 32 to regenerate the per-world receipt."
+}
