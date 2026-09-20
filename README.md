@@ -160,15 +160,42 @@ It does **not** map AInstein's structure onto real dendritic morphology. And the
 
 See `GATE3_CONTRACT.md` and `results/gate3.json`.
 
+
+## Exploratory site — temporal foveation and reflection
+
+`temporal_foveation.html` is a deliberately non-gated mechanism sketch built from the autobiographical-memory discussion that followed Gate 3.
+
+The working idea is:
+
+    unexpected change
+        -> decayed stamped residue
+        -> current context re-addresses it
+        -> nonlinear retrieval knee
+        -> partial past-state reinstatement
+        -> present/past interference
+        -> reflection operator
+
+The page treats memory retrieval as **temporal foveation**: fine detail is not continuously instantiated, but a low-bandwidth event-state can sharpen when current context, relation and affect jointly cross a knee.
+
+The important distinction is that the old state does not replace the current state. Both remain available:
+
+    O_reflect = H(S_now, a * S_past)
+
+so the interesting computation is a relation between states — "current self observing past self" — rather than replay alone.
+
+The whorl-like field on the page is an explicit visual analogy to the older `ArtificialCortex/the_whorl` line. That work showed, in its own toy field, that structured circular coupling can make a spiral state easier to revisit/pin. Here the whorl is **not** asserted as a biological autobiographical-memory mechanism. It is only a visual reminder that topology can change which latent states are easy to revisit.
+
+This sketch also sharpens a possible future gate: a stored residue should earn its keep by changing **what happens next** — prediction, sensing allocation, or operator choice — before the expected event occurs. Mere reconstruction of an old scene would not be enough.
+
 ## Next gates
 
 **Gate 4 — operator time.** Replace simple A/B role stamps with event, time, perspective, branch, and actual/simulated provenance, and ask whether collision value depends on the trajectory that produced the residue.
 
 **Gate 5 — beyond multiplicative grammar.** Gate 3 still supplies multiplication as the compositional primitive. The next synthesis gate should search across primitive families or grow a small executable circuit whose useful nonlinearity is not known in advance.
 
-**Gate 5 — useful writeback.** Let the synthesized operator alter future resident state, then require the acquired capability to remain useful after the original residues are gone.
+**Gate 6 — useful writeback.** Let the synthesized operator alter future resident state, then require the acquired capability to remain useful after the original residues are gone.
 
-**Gate 6 — open-ended collision allocation.** Remove the finite eight-hypothesis need family used by Gate 2 and ask whether uncertainty can be represented and reduced without a closed candidate list.
+**Gate 7 — open-ended collision allocation.** Remove the finite eight-hypothesis need family used by Gate 2 and ask whether uncertainty can be represented and reduced without a closed candidate list.
 
 ## Run
 
