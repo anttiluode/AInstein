@@ -24,3 +24,4 @@ jobs:
       - run: python experiment.py --assert-gate --seeds 32
       - run: python gate2_experiment.py --assert-gate --seeds 32 --trials 128
       - run: python gate3_experiment.py --assert-gate --seeds 32
+      - run: python gate4_experiment.py --assert-gate --seeds 32

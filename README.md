@@ -187,15 +187,113 @@ The whorl-like field on the page is an explicit visual analogy to the older `Art
 
 This sketch also sharpens a possible future gate: a stored residue should earn its keep by changing **what happens next** — prediction, sensing allocation, or operator choice — before the expected event occurs. Mere reconstruction of an old scene would not be enough.
 
+
+## Gate 4 — operator memory: reinstate the old computation, then compare eras
+
+The temporal-foveation sketch suggested a stricter question than "can the past be replayed?":
+
+> **Can a past computational state remain separately callable, and does co-activating it with the current state expose a useful relation that neither state provides alone?**
+
+This is where AInstein meets GAx directly.
+
+GAx keeps alternative computational modes alive and lets context change their relative gain. Gate 4 turns that into an explicit operator-memory test.
+
+Each world learns **8 historical 6×6 operators**, each from noisy observations, and caches each one with a **5-D context/provenance stamp**. The system then learns a different current operator. A later noisy context query has to reactivate the right historical operator.
+
+### Part A — old operators remain callable
+
+On held-out inputs from an earlier regime:
+
+| method | old-task R² |
+|---|---:|
+| **context-reinstated historical operator** | **0.9784** |
+| current operator | -1.0038 |
+| average of historical cache | 0.1191 |
+| context erased / unstamped cache choice | -0.7551 |
+
+The context retrieval hit rate is **0.9893**.
+
+So the useful old computation has not merely left an undifferentiated trace inside the current one. It remains a separately addressable capability.
+
+### Part B — present and past jointly define another operator
+
+For latent state `x`:
+
+    y_past = O_past x
+    y_now  = O_now x
+
+When both learned operators are simultaneously available, their relation is itself an operator:
+
+    T_past_to_now = O_now pinv(O_past)
+
+and therefore:
+
+    T_past_to_now y_past ≈ y_now
+
+On held-out states, this **reflection / change operator** reaches **0.9784 R²**.
+
+The attackers are deliberately different:
+
+| transfer mechanism | R² |
+|---|---:|
+| **present↔past relation operator** | **0.9784** |
+| wrong historical provenance | -0.9917 |
+| current operator directly on old representation | -1.0072 |
+| historical operator directly on its own representation | -0.9999 |
+| oracle best convex blend of old/current operators | -0.4726 |
+| fresh transfer map learned from 3 paired examples | 0.4958 |
+
+This gives a precise synthetic version of the train thought:
+
+> the useful computation is not "be the old state again."
+
+It is:
+
+    current operator
+          +
+    reinstated historical operator
+          ->
+    relation between eras
+
+or:
+
+    present self
+          +
+    sufficiently reinstated past self
+          ->
+    an operation for measuring / translating change
+
+That new relation is not present in either operator considered alone.
+
+### The GAx connection
+
+GAx's spectral-router line says:
+
+    preserve multiple approaches
+        -> context changes modal gain
+        -> appropriate computation dominates
+
+AInstein Gate 4 says:
+
+    preserve learned operators as separately stamped objects
+        -> context reinstates one
+        -> use it directly when the old problem returns
+        -> or compose it with the current operator
+        -> obtain a cross-time relation operator
+
+So "memory" starts looking less like a store of old observations and more like a **library of previously learned transformations**.
+
+See `GATE4_CONTRACT.md` and `results/gate4.json`.
+
 ## Next gates
 
-**Gate 4 — operator time.** Replace simple A/B role stamps with event, time, perspective, branch, and actual/simulated provenance, and ask whether collision value depends on the trajectory that produced the residue.
+**Gate 5 — trajectory-sensitive operator memory.** Gate 4 stamps operators by context but does not yet make two identical endpoint states distinguishable by the histories that produced them. Add event/time/perspective/actual-vs-simulated provenance and require retrieval/composition to depend on trajectory, not endpoint alone.
 
-**Gate 5 — beyond multiplicative grammar.** Gate 3 still supplies multiplication as the compositional primitive. The next synthesis gate should search across primitive families or grow a small executable circuit whose useful nonlinearity is not known in advance.
+**Gate 6 — beyond multiplicative grammar.** Gate 3 still supplies multiplication as the compositional primitive. Search across primitive families or grow a small executable circuit whose useful nonlinearity is not known in advance.
 
-**Gate 6 — useful writeback.** Let the synthesized operator alter future resident state, then require the acquired capability to remain useful after the original residues are gone.
+**Gate 7 — useful writeback.** Let a reinstated or synthesized operator alter future resident state, then require the acquired capability to remain useful after the original residue/context cue is gone.
 
-**Gate 7 — open-ended collision allocation.** Remove the finite eight-hypothesis need family used by Gate 2 and ask whether uncertainty can be represented and reduced without a closed candidate list.
+**Gate 8 — open-ended collision allocation.** Remove the finite eight-hypothesis need family used by Gate 2 and ask whether uncertainty can be represented and reduced without a closed candidate list.
 
 ## Run
 
@@ -203,6 +301,7 @@ This sketch also sharpens a possible future gate: a stored residue should earn i
     python experiment.py --assert-gate --seeds 32
     python gate2_experiment.py --assert-gate --seeds 32 --trials 128
     python gate3_experiment.py --assert-gate --seeds 32
+    python gate4_experiment.py --assert-gate --seeds 32
     python -m unittest discover -s tests -v
 
 The interactive index.html that bootstrapped the repo is intentionally retained as the visual branching-residue sketch. The executable scientific gate now lives beside it.
