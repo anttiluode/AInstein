@@ -1,0 +1,45 @@
+{
+  "gate": "Gate 2 — active collision selection",
+  "config": {
+    "worlds": 32,
+    "trials_per_world": 128,
+    "candidate_pairs": 64,
+    "probe_budget": 3,
+    "probe_fraction": 0.046875
+  },
+  "policies": {
+    "active": {
+      "mean_selected_utility": 0.9530711727347554,
+      "mean_regret": 0.012417061511042249,
+      "oracle_hit_rate": 0.89990234375,
+      "mean_posterior_entropy_bits": 0.25496329670133144
+    },
+    "random": {
+      "mean_selected_utility": 0.8460247373358835,
+      "mean_regret": 0.11946349690991422,
+      "oracle_hit_rate": 0.198974609375,
+      "mean_posterior_entropy_bits": 1.3297043570626612
+    },
+    "greedy": {
+      "mean_selected_utility": 0.8041366745239248,
+      "mean_regret": 0.16135155972187287,
+      "oracle_hit_rate": 0.09423828125,
+      "mean_posterior_entropy_bits": 1.7694177062945604
+    },
+    "misbound": {
+      "mean_selected_utility": 0.47624432958644614,
+      "mean_regret": 0.4892439046593514,
+      "oracle_hit_rate": 0.0224609375,
+      "mean_posterior_entropy_bits": 0.2470238877636062
+    }
+  },
+  "deltas": {
+    "active_minus_random_utility": 0.10704643539887193,
+    "active_minus_greedy_utility": 0.1489344982108306,
+    "active_minus_misbound_utility": 0.47682684314830925,
+    "active_minus_random_oracle_hit": 0.700927734375,
+    "active_entropy_reduction_vs_random": 1.0747410603613297
+  },
+  "gate_pass": true,
+  "note": "Compact deterministic receipt. Re-run gate2_experiment.py --assert-gate --seeds 32 --trials 128 to regenerate the per-world receipt."
+}
