@@ -1,0 +1,32 @@
+{
+  "gate": "Gate 3 — topology-grown synthesis",
+  "worlds": 32,
+  "config": {
+    "residue_coordinates": 12,
+    "provenance_groups": 3,
+    "operator_side": 3,
+    "structural_budget": 12,
+    "hidden_orders": [
+      2,
+      2,
+      3,
+      3,
+      4,
+      4
+    ],
+    "random_wiring_repeats": 16
+  },
+  "mean_metrics": {
+    "full_depth_operator_r2": 0.998633410461858,
+    "full_depth_application_r2": 0.9986415464811493,
+    "depth2_same_budget_r2": 0.30907460762681105,
+    "depth3_same_budget_r2": 0.6459320645828166,
+    "same_shape_random_wiring_r2": -0.01180705919077445,
+    "shuffled_address_wiring_r2": -0.003023061558534275,
+    "hidden_program_recovery_fraction": 1,
+    "selected_program_count": 6,
+    "used_structural_cost": 12
+  },
+  "gate_pass": true,
+  "note": "Compact deterministic receipt. Re-run gate3_experiment.py --assert-gate --seeds 32 to regenerate per-world programs and growth curves."
+}
