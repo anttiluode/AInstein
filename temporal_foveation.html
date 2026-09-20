@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AInstein — Temporal Foveation</title>
+<style>
+:root{
+  --bg:#070a10;--panel:#0d121b;--panel2:#111827;--ink:#eef3ff;--muted:#9ca9bd;
+  --line:#233046;--blue:#76a9ff;--cyan:#63e6ff;--gold:#ffd166;--pink:#ff8ac6;
+  --green:#86efac;--red:#ff7b86;--violet:#b99cff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:
+ radial-gradient(circle at 15% 15%,rgba(118,169,255,.11),transparent 30%),
+ radial-gradient(circle at 85% 10%,rgba(255,138,198,.08),transparent 28%),
+ var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding:22px}
+a{color:inherit}
+.wrap{max-width:1500px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+.kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);font-weight:700}
+h1{margin:.18rem 0 .45rem;font-size:clamp(28px,4vw,52px);line-height:1.02;letter-spacing:-.035em}
+.lede{max-width:920px;color:var(--muted);font-size:15px;line-height:1.55}
+.nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.nav a,.pill{border:1px solid var(--line);background:rgba(13,18,27,.8);padding:9px 12px;border-radius:999px;text-decoration:none;font-size:12px;color:var(--muted)}
+.nav a:hover{border-color:var(--blue);color:var(--ink)}
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.75fr);gap:16px}
+.card{background:linear-gradient(180deg,rgba(17,24,39,.91),rgba(10,14,22,.93));border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 80px rgba(0,0,0,.25);overflow:hidden}
+.card h2{font-size:15px;margin:0}
+.cardHead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.sub{font-size:12px;color:var(--muted)}
+.canvasWrap{position:relative;min-height:610px}
+canvas{display:block;width:100%;height:610px}
+.legend{position:absolute;left:14px;bottom:12px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none}
+.legend span{font-size:11px;padding:6px 8px;border:1px solid rgba(255,255,255,.11);border-radius:999px;background:rgba(5,8,13,.75);backdrop-filter:blur(8px)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.side{display:grid;gap:16px;align-content:start}
+.controls{padding:14px 16px 16px}
+.ctrl{display:grid;grid-template-columns:124px 1fr 48px;align-items:center;gap:10px;margin:11px 0}
+.ctrl label{font-size:12px;color:var(--muted)}
+.ctrl output{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+button{border:1px solid var(--line);background:#121a27;color:var(--ink);padding:10px 12px;border-radius:11px;font-weight:650;cursor:pointer}
+button:hover{border-color:var(--blue);background:#152238}
+button.primary{background:linear-gradient(135deg,#174784,#392b76);border-color:#5b79c8}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:14px 16px}
+.metric{padding:12px;border:1px solid var(--line);border-radius:13px;background:rgba(7,10,16,.38)}
+.metric b{display:block;font:700 22px ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:4px}
+.metric small{color:var(--muted)}
+.kneeWrap{padding:8px 16px 16px}
+#knee{height:160px;width:100%}
+.statement{padding:15px 16px;border-top:1px solid var(--line);font-size:13px;line-height:1.55;color:var(--muted)}
+.statement strong{color:var(--ink)}
+.flow{margin-top:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.step{position:relative;padding:13px;border:1px solid var(--line);background:rgba(12,17,26,.8);border-radius:14px;min-height:94px}
+.step .n{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--cyan)}
+.step b{display:block;font-size:13px;margin:6px 0 3px}
+.step p{margin:0;color:var(--muted);font-size:11px;line-height:1.35}
+.transition{margin-top:16px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:16px}
+.transition .plotbox{padding:10px 14px 14px}
+#adaptation{width:100%;height:240px}
+.transitionText{padding:16px;color:var(--muted);font-size:13px;line-height:1.6}
+.transitionText strong{color:var(--ink)}
+.note{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(10,14,22,.72);color:var(--muted);font-size:13px;line-height:1.6}
+.note code{color:var(--cyan)}
+.eq{font:500 13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbeafe}
+.badge{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;padding:5px 7px;border-radius:8px;background:#172235;border:1px solid var(--line)}
+@media(max-width:980px){
+  body{padding:12px}.grid{grid-template-columns:1fr}.canvasWrap{min-height:510px}canvas{height:510px}.flow{grid-template-columns:1fr 1fr}.nav{justify-content:flex-start}.transition{grid-template-columns:1fr}
+}
+@media(max-width:560px){.flow{grid-template-columns:1fr}.ctrl{grid-template-columns:105px 1fr 42px}.buttons{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="kicker">AInstein / exploratory mechanism sketch</div>
+    <h1>Temporal Foveation & Reflection</h1>
+    <div class="lede">
+      A memory is not rendered continuously. A faint, compressed event-state can remain latent until
+      current context, relation and affect jointly cross a retrieval knee. Then a fragment of the old
+      world sharpens <em>inside the present</em> — not replacing it — so present-self and past-self can
+      interfere and create a comparison operator.
+    </div>
+  </div>
+  <nav class="nav">
+    <a href="index.html">Residue collision demo</a>
+    <a href="https://github.com/anttiluode/AInstein">Repository</a>
+  </nav>
+</header>
+
+<div class="grid">
+  <section class="card">
+    <div class="cardHead">
+      <div>
+        <h2>Latent memory field</h2>
+        <div class="sub">The whorl is a visualization of structured latent address — not a claim that autobiographical memory is a cortical spiral.</div>
+      </div>
+      <span class="badge" id="stateBadge">LATENT</span>
+    </div>
+    <div class="canvasWrap">
+      <canvas id="field"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--cyan)"></i>present state</span>
+        <span><i class="dot" style="background:var(--pink)"></i>past event-state</span>
+        <span><i class="dot" style="background:var(--gold)"></i>reflection / interference</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <section class="card">
+      <div class="cardHead">
+        <div><h2>Retrieval knee</h2><div class="sub">weak cues accumulate; crossing the knee foveates the past</div></div>
+      </div>
+      <div class="controls">
+        <div class="ctrl"><label>context match</label><input id="context" type="range" min="0" max="1" step=".01" value=".24"><output></output></div>
+        <div class="ctrl"><label>relation match</label><input id="relation" type="range" min="0" max="1" step=".01" value=".22"><output></output></div>
+        <div class="ctrl"><label>affect / self-state</label><input id="affect" type="range" min="0" max="1" step=".01" value=".30"><output></output></div>
+        <div class="ctrl"><label>old residue</label><input id="residue" type="range" min="0" max="1" step=".01" value=".52"><output></output></div>
+        <div class="ctrl"><label>temporal decay</label><input id="decay" type="range" min="0" max="1" step=".01" value=".62"><output></output></div>
+        <div class="ctrl"><label>knee sharpness</label><input id="sharp" type="range" min="2" max="22" step=".5" value="12"><output></output></div>
+        <div class="buttons">
+          <button id="ordinary">ordinary present</button>
+          <button id="loss">loss thought</button>
+          <button id="empty">empty carriage</button>
+          <button id="joint">carriage articulation</button>
+          <button class="primary" id="sequence" style="grid-column:1/-1">play cue sequence</button>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><small>match score</small><b id="score">0.00</b></div>
+        <div class="metric"><small>retrieval activation</small><b id="activation">0.00</b></div>
+        <div class="metric"><small>present ↔ past overlap</small><b id="overlap">0.00</b></div>
+        <div class="metric"><small>reflection operator</small><b id="reflection">0.00</b></div>
+      </div>
+      <div class="kneeWrap"><canvas id="knee"></canvas></div>
+      <div class="statement" id="statement">
+        <strong>Latent:</strong> the old event-state is available only as a low-bandwidth residue.
+      </div>
+    </section>
+  </aside>
+</div>
+
+<div class="flow">
+  <div class="step"><span class="n">01</span><b>Change leaves residue</b><p>Store what violated the expected continuation, not necessarily the whole scene.</p></div>
+  <div class="step"><span class="n">02</span><b>Residue fades</b><p>Fine coordinates decay; relation, affect and self-state can remain as a compressed address.</p></div>
+  <div class="step"><span class="n">03</span><b>Context accumulates</b><p>Current geometry, solitude, motion, thought and emotion weakly point toward one old event.</p></div>
+  <div class="step"><span class="n">04</span><b>Knee is crossed</b><p>The memory is temporally foveated: a fragment becomes sharp enough to enter current computation.</p></div>
+  <div class="step"><span class="n">05</span><b>Reflection is new</b><p>Past-self is not substituted for present-self; their coexistence makes comparison possible.</p></div>
+</div>
+
+
+<div class="transition">
+  <section class="card">
+    <div class="cardHead">
+      <div><h2>When the world-model loses one of its inputs</h2><div class="sub">old coupled modes keep predicting for a while; reality repeatedly returns residual</div></div>
+      <span class="badge">MODE TRANSITION</span>
+    </div>
+    <div class="plotbox"><canvas id="adaptation"></canvas></div>
+  </section>
+  <section class="card">
+    <div class="cardHead"><div><h2>Two different meanings of “loss”</h2><div class="sub">keep the metaphor honest</div></div></div>
+    <div class="transitionText">
+      <strong>Predictive loss</strong> can jump when a long-stable source of input disappears while the internal transition model still expects it.
+      Repeated mismatch can slowly reshape the dominant modes until ordinary continuation becomes predictable again.
+      <br><br>
+      <strong>Emotional loss is not reduced to an optimization scalar.</strong> The site only borrows the machine-learning word because the
+      computational analogy is useful: the expected +1 continuation became badly wrong, then gradually less wrong.
+      <br><br>
+      A later cue can transiently <strong>reinstantiate part of the old mode</strong> without undoing the newer stable model.
+      That is why temporal foveation can feel like another era becoming sharp while the current self remains present.
+    </div>
+  </section>
+</div>
+
+<div class="note">
+  <strong>Working abstraction.</strong>
+  <span class="eq">R = ΔS − ΔŜ</span> is the unexpected change.
+  A decayed stamped memory <span class="eq">M=(R,Z)</span> remains mostly latent.
+  Current context computes a match <span class="eq">m=K(C<sub>t</sub>,Z)</span>.
+  A nonlinear knee yields <span class="eq">a=σ(k(m−θ))</span>.
+  When <span class="eq">a</span> rises, the past state is partially reinstated while the present remains active:
+  <span class="eq">O<sub>reflect</sub>=H(S<sub>now</sub>,a·S<sub>past</sub>)</span>.
+  The whorl visual borrows one idea from the older ArtificialCortex work: structured coupling can make some
+  states easier to revisit or pin. Here it is deliberately only a visualization/metaphor until an experiment earns more.
+</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const controls = ["context","relation","affect","residue","decay","sharp"].map($);
+const field = $("field"), fctx = field.getContext("2d");
+const knee = $("knee"), kctx = knee.getContext("2d");
+const adaptation = $("adaptation"), actx = adaptation.getContext("2d");
+let phase=0, sequenceTimer=null;
+
+function resizeCanvas(canvas){
+  const dpr=Math.max(1,Math.min(2,devicePixelRatio||1));
+  const r=canvas.getBoundingClientRect();
+  const w=Math.max(1,Math.round(r.width*dpr)), h=Math.max(1,Math.round(r.height*dpr));
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+  const ctx=canvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {w:r.width,h:r.height};
+}
+function vals(){
+  return Object.fromEntries(controls.map(c=>[c.id,+c.value]));
+}
+function sigmoid(x){return 1/(1+Math.exp(-x))}
+function metrics(){
+  const v=vals();
+  // Old residue contributes only when current relational/contextual evidence re-addresses it.
+  const retained=v.residue*(1-.72*v.decay);
+  const score=.30*v.context+.31*v.relation+.31*v.affect+.18*retained;
+  const activation=sigmoid(v.sharp*(score-.56));
+  // Present/past coexistence is maximal at partial reinstatement, then stays useful as activation rises.
+  const overlap=Math.min(1,.18+.82*activation*(.45+.55*v.affect));
+  const reflection=Math.min(1,activation*overlap*(.55+.45*v.relation));
+  return {...v,retained,score,activation,overlap,reflection};
+}
+function syncOutputs(){
+  controls.forEach(c=>c.parentElement.querySelector("output").value=(+c.value).toFixed(c.id==="sharp"?1:2));
+  const m=metrics();
+  $("score").textContent=m.score.toFixed(2);
+  $("activation").textContent=m.activation.toFixed(2);
+  $("overlap").textContent=m.overlap.toFixed(2);
+  $("reflection").textContent=m.reflection.toFixed(2);
+  const badge=$("stateBadge");
+  if(m.activation<.25){badge.textContent="LATENT";badge.style.color="#9ca9bd"}
+  else if(m.activation<.72){badge.textContent="PRIMED";badge.style.color="#63e6ff"}
+  else {badge.textContent="FOVEATED";badge.style.color="#ffd166"}
+  $("statement").innerHTML =
+    m.activation<.25
+    ? "<strong>Latent:</strong> the old event-state is available only as a low-bandwidth residue."
+    : m.activation<.72
+    ? "<strong>Primed:</strong> enough context matches that the old state begins biasing the next operator, but it is not yet vivid."
+    : "<strong>Foveated:</strong> a fragment of the past is reinstated inside the present. The output here is not replay — it is a present↔past comparison state.";
+  drawKnee();
+}
+controls.forEach(c=>c.addEventListener("input",syncOutputs));
+
+function setCue(obj){
+  for(const [k,v] of Object.entries(obj)) $(k).value=v;
+  syncOutputs();
+}
+$("ordinary").onclick=()=>setCue({context:.18,relation:.16,affect:.16,residue:.52,decay:.62});
+$("loss").onclick=()=>setCue({context:.30,relation:.22,affect:.82,residue:.58,decay:.58});
+$("empty").onclick=()=>setCue({context:.68,relation:.42,affect:.76,residue:.60,decay:.56});
+$("joint").onclick=()=>setCue({context:.82,relation:.92,affect:.82,residue:.64,decay:.52});
+$("sequence").onclick=()=>{
+  if(sequenceTimer) clearTimeout(sequenceTimer);
+  const seq=[
+    {t:0,v:{context:.18,relation:.16,affect:.16,residue:.52,decay:.62}},
+    {t:900,v:{context:.30,relation:.22,affect:.82,residue:.58,decay:.58}},
+    {t:1900,v:{context:.68,relation:.42,affect:.76,residue:.60,decay:.56}},
+    {t:3000,v:{context:.82,relation:.92,affect:.82,residue:.64,decay:.52}}
+  ];
+  seq.forEach(({t,v},i)=>setTimeout(()=>{setCue(v); if(i===seq.length-1) sequenceTimer=null},t));
+};
+
+function drawKnee(){
+  const {w,h}=resizeCanvas(knee), m=metrics(), pad=18;
+  kctx.clearRect(0,0,w,h);
+  kctx.strokeStyle="#233046"; kctx.lineWidth=1;
+  kctx.beginPath();kctx.moveTo(pad,h-pad);kctx.lineTo(w-pad,h-pad);kctx.moveTo(pad,pad);kctx.lineTo(pad,h-pad);kctx.stroke();
+  kctx.strokeStyle="#76a9ff";kctx.lineWidth=2;kctx.beginPath();
+  for(let i=0;i<=180;i++){
+    const x=i/180, a=sigmoid(m.sharp*(x-.56));
+    const px=pad+x*(w-2*pad), py=h-pad-a*(h-2*pad);
+    i?kctx.lineTo(px,py):kctx.moveTo(px,py);
+  } kctx.stroke();
+  const px=pad+Math.max(0,Math.min(1,m.score))*(w-2*pad), py=h-pad-m.activation*(h-2*pad);
+  kctx.fillStyle="#ffd166";kctx.beginPath();kctx.arc(px,py,5,0,Math.PI*2);kctx.fill();
+  kctx.fillStyle="#9ca9bd";kctx.font="11px system-ui";kctx.fillText("match →",w-55,h-4);kctx.fillText("activation",4,12);
+}
+
+function rgba(hex,a){
+  const n=parseInt(hex.slice(1),16);
+  return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;
+}
+
+function drawAdaptation(){
+  const {w,h}=resizeCanvas(adaptation), padL=40,padR=18,padT=18,padB=30;
+  actx.clearRect(0,0,w,h);
+  actx.strokeStyle="#233046";actx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+(h-padT-padB)*i/4;
+    actx.beginPath();actx.moveTo(padL,y);actx.lineTo(w-padR,y);actx.stroke();
+  }
+  const x0=padL+(w-padL-padR)*.23;
+  actx.strokeStyle="rgba(255,123,134,.5)";actx.setLineDash([4,4]);
+  actx.beginPath();actx.moveTo(x0,padT);actx.lineTo(x0,h-padB);actx.stroke();actx.setLineDash([]);
+
+  const drawCurve=(color,fn)=>{
+    actx.strokeStyle=color;actx.lineWidth=2.2;actx.beginPath();
+    for(let i=0;i<=240;i++){
+      const t=i/240, x=padL+t*(w-padL-padR), yv=Math.max(0,Math.min(1,fn(t)));
+      const y=h-padB-yv*(h-padT-padB);
+      i?actx.lineTo(x,y):actx.moveTo(x,y);
+    }
+    actx.stroke();
+  };
+  // Before the break prediction error is low. Removing a persistent input causes
+  // a large mismatch, then adaptation discovers a new low-error continuation.
+  drawCurve("#ff7b86",t=>t<.23?.055:.055+.90*Math.exp(-(t-.23)*6.2));
+  drawCurve("#ff8ac6",t=>t<.23?.96:.96*Math.exp(-(t-.23)*3.2));
+  drawCurve("#63e6ff",t=>t<.23?.04:1-.96*Math.exp(-(t-.23)*3.2));
+
+  actx.fillStyle="#9ca9bd";actx.font="11px system-ui";
+  actx.fillText("time / repeated +1 continuations →",Math.max(padL,w-195),h-7);
+  actx.save();actx.translate(12,h/2+30);actx.rotate(-Math.PI/2);actx.fillText("relative magnitude",0,0);actx.restore();
+  actx.fillStyle="#ff7b86";actx.fillText("prediction error",padL+8,padT+14);
+  actx.fillStyle="#ff8ac6";actx.fillText("old coupled mode",padL+8,padT+29);
+  actx.fillStyle="#63e6ff";actx.fillText("new stable mode",padL+8,padT+44);
+  actx.fillStyle="#ff7b86";actx.fillText("structural break",x0+6,h-padB-8);
+}
+
+function drawField(){
+  const {w,h}=resizeCanvas(field), m=metrics();
+  fctx.clearRect(0,0,w,h);
+  const cx=w*.50, cy=h*.50;
+  const maxR=Math.min(w,h)*.42;
+
+  // temporal periphery: old traces are coarse/faint until context foveates one.
+  for(let ring=7;ring>=1;ring--){
+    const r=maxR*ring/7;
+    fctx.strokeStyle=`rgba(118,169,255,${.025+.018*(7-ring)})`;
+    fctx.lineWidth=1;fctx.beginPath();fctx.arc(cx,cy,r,0,Math.PI*2);fctx.stroke();
+  }
+
+  // whorl-like latent address field. Structured geometry biases revisitability but is not a biological claim.
+  for(let arm=0;arm<3;arm++){
+    fctx.beginPath();
+    for(let i=0;i<180;i++){
+      const u=i/179;
+      const theta=arm*2*Math.PI/3 + u*5.8*Math.PI + phase*.06;
+      const r=18+u*maxR*.94;
+      const x=cx+Math.cos(theta)*r, y=cy+Math.sin(theta)*r*.78;
+      i?fctx.lineTo(x,y):fctx.moveTo(x,y);
+    }
+    fctx.strokeStyle="rgba(99,230,255,.10)";fctx.lineWidth=1.1;fctx.stroke();
+  }
+
+  // latent memory packets around the manifold
+  const memories=[
+    {a:.13,r:.88,label:"detail"},
+    {a:1.36,r:.72,label:"place"},
+    {a:2.58,r:.83,label:"relation"},
+    {a:3.72,r:.69,label:"affect"},
+    {a:5.04,r:.79,label:"self-state"}
+  ];
+  fctx.font="11px system-ui";
+  for(const item of memories){
+    const rr=maxR*item.r, x=cx+Math.cos(item.a+phase*.018)*rr, y=cy+Math.sin(item.a+phase*.018)*rr*.78;
+    fctx.fillStyle="rgba(185,156,255,.20)";fctx.beginPath();fctx.arc(x,y,3.5,0,Math.PI*2);fctx.fill();
+    fctx.fillStyle="rgba(156,169,189,.45)";fctx.fillText(item.label,x+7,y+4);
+  }
+
+  // present-state orbit
+  const nowA=-.55+Math.sin(phase*.015)*.08;
+  const nowR=maxR*.52;
+  const nx=cx+Math.cos(nowA)*nowR, ny=cy+Math.sin(nowA)*nowR*.78;
+  fctx.strokeStyle="rgba(99,230,255,.24)";fctx.setLineDash([4,5]);fctx.beginPath();fctx.moveTo(cx,cy);fctx.lineTo(nx,ny);fctx.stroke();fctx.setLineDash([]);
+  fctx.fillStyle="#63e6ff";fctx.beginPath();fctx.arc(nx,ny,8,0,Math.PI*2);fctx.fill();
+  fctx.fillStyle="#eef3ff";fctx.font="12px system-ui";fctx.fillText("present self",nx+12,ny+4);
+
+  // past event-state: same latent address, sharpens as activation rises.
+  const pa=2.95, pr=maxR*.58;
+  const px=cx+Math.cos(pa)*pr, py=cy+Math.sin(pa)*pr*.78;
+  const blur=22*(1-m.activation)+2;
+  const halo=fctx.createRadialGradient(px,py,0,px,py,blur*2.4);
+  halo.addColorStop(0,rgba("#ff8ac6",.72*m.activation+.06));
+  halo.addColorStop(1,"rgba(255,138,198,0)");
+  fctx.fillStyle=halo;fctx.beginPath();fctx.arc(px,py,blur*2.4,0,Math.PI*2);fctx.fill();
+  fctx.fillStyle=rgba("#ff8ac6",.16+.84*m.activation);fctx.beginPath();fctx.arc(px,py,4+7*m.activation,0,Math.PI*2);fctx.fill();
+  fctx.fillStyle=rgba("#eef3ff",.18+.82*m.activation);fctx.fillText("past event-state",px+13,py+4);
+
+  // contextual cue rays converge on past address.
+  const cuePoints=[
+    {x:w*.17,y:h*.18,v:m.context,label:"context"},
+    {x:w*.13,y:h*.72,v:m.relation,label:"relation"},
+    {x:w*.82,y:h*.22,v:m.affect,label:"affect"}
+  ];
+  cuePoints.forEach(c=>{
+    fctx.strokeStyle=`rgba(118,169,255,${.05+.45*c.v})`;fctx.lineWidth=.6+2.2*c.v;
+    fctx.beginPath();fctx.moveTo(c.x,c.y);fctx.lineTo(px,py);fctx.stroke();
+    fctx.fillStyle=`rgba(238,243,255,${.25+.65*c.v})`;fctx.beginPath();fctx.arc(c.x,c.y,3+5*c.v,0,Math.PI*2);fctx.fill();
+    fctx.fillStyle="rgba(156,169,189,.7)";fctx.fillText(c.label,c.x+9,c.y+4);
+  });
+
+  // interference / reflection region between now and past
+  const mx=(nx+px)/2, my=(ny+py)/2;
+  if(m.reflection>.02){
+    for(let j=10;j>=1;j--){
+      const r=5+j*5*m.reflection;
+      fctx.strokeStyle=`rgba(255,209,102,${.015+.018*m.reflection*(11-j)})`;
+      fctx.lineWidth=1;
+      fctx.beginPath();
+      for(let i=0;i<=100;i++){
+        const a=i/100*Math.PI*2;
+        const wobble=1+.18*Math.sin(3*a+phase*.06)+.08*Math.sin(5*a-phase*.04);
+        const x=mx+Math.cos(a)*r*wobble;
+        const y=my+Math.sin(a)*r*.72*wobble;
+        i?fctx.lineTo(x,y):fctx.moveTo(x,y);
+      }
+      fctx.stroke();
+    }
+    fctx.fillStyle=rgba("#ffd166",.20+.75*m.reflection);fctx.beginPath();fctx.arc(mx,my,4+5*m.reflection,0,Math.PI*2);fctx.fill();
+    if(m.reflection>.35){fctx.fillStyle=rgba("#ffd166",.35+.6*m.reflection);fctx.fillText("reflection operator",mx+12,my-8)}
+  }
+
+  // coexistence links: past does not replace present.
+  fctx.strokeStyle=rgba("#ffd166",.08+.48*m.activation);fctx.lineWidth=1+2*m.activation;
+  fctx.setLineDash([6,5]);fctx.beginPath();fctx.moveTo(nx,ny);fctx.quadraticCurveTo(cx,cy-70*m.activation,px,py);fctx.stroke();fctx.setLineDash([]);
+
+  // central label
+  fctx.textAlign="center";fctx.font="600 13px system-ui";fctx.fillStyle="rgba(238,243,255,.86)";
+  fctx.fillText(m.activation>.72?"PAST SHARPENS INSIDE NOW":"LATENT EVENT MANIFOLD",cx,cy-6);
+  fctx.font="11px ui-monospace,monospace";fctx.fillStyle="rgba(156,169,189,.72)";
+  fctx.fillText(`a=${m.activation.toFixed(2)}  reflect=${m.reflection.toFixed(2)}`,cx,cy+14);
+  fctx.textAlign="start";
+
+  phase+=1;
+  requestAnimationFrame(drawField);
+}
+window.addEventListener("resize",()=>{syncOutputs();drawAdaptation()});
+syncOutputs(); drawAdaptation(); drawField();
+</script>
+</body>
+</html>
